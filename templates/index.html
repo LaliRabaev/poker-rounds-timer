@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Poker Round Timer</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function fetchTime() {
+            fetch('/timer')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('timer').innerHTML = `${data.mins} minutes ${data.secs} seconds`;
+                });
+            setTimeout(fetchTime, 1000);  // Update every second
+        }
+    </script>
+</head>
+<body onload="fetchTime()">
+    <div class="container">
+        <div class="left-column">
+            <img src="{{ url_for('static', filename='poker_hands.png') }}" alt="Poker Hands">
+        </div>
+        <div class="right-column">
+            <h1 class="main_title">Poker Night</h1>
+            <div class="round_number">Round: {{ round['round'] }}</div>
+            <div id="timer-container">
+                <div id="timer">15:00</div>
+            </div>            
+            <div class="blinds">
+                <img src="{{ url_for('static', filename='small_blind.png') }}" alt="Small Blind">
+                <span>Small Blind: {{ round['small_blind'] }}</span>
+                <img src="{{ url_for('static', filename='big_blind.png') }}" alt="Big Blind">
+                <span>Big Blind: {{ round['big_blind'] }}</span>
+            </div>
+            <div class="next-round-blinds">
+                <span>Next Small Blind: {{ next_round['small_blind'] }}</span>
+                <span>Next Big Blind: {{ next_round['big_blind'] }}</span>
+            </div>
+            <div class="button-container">
+                <button onclick="startTimer()">Start Timer</button>
+                <button onclick="stopTimer()">Stop Timer</button>
+                <button onclick="previousRound()">Previous Round</button>
+                <button onclick="nextRound()">Next Round</button>
+                <button onclick="resetTimer()">Reset Timer</button>
+            </div>            
+        </div>        
+    </div>
+    <div class="chip-container">
+        <div class="chip">
+            <span>100</span>
+            <img src="{{ url_for('static', filename='chip_100.png') }}" alt="100 Chip">
+        </div>
+        <div class="chip">
+            <span>500</span>
+            <img src="{{ url_for('static', filename='chip_500.png') }}" alt="500 Chip">
+        </div>
+        <div class="chip">
+            <span>1000</span>
+            <img src="{{ url_for('static', filename='chip_1000.png') }}" alt="1000 Chip">
+        </div>
+        <div class="chip">
+            <span>2500</span>
+            <img src="{{ url_for('static', filename='chip_2500.png') }}" alt="2500 Chip">
+        </div>
+        <div class="chip">
+            <span>5000</span>
+            <img src="{{ url_for('static', filename='chip_5000.png') }}" alt="5000 Chip">
+        </div>
+    </div>
+    <script>
+        function fetchTime() {
+            fetch('/timer')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('timer').innerHTML = `${data.mins} minutes ${data.secs} seconds`;
+                })
+                .catch(error => console.error('Error fetching time:', error));
+            setTimeout(fetchTime, 1000); // Update every second
+        }
+        
+        function startTimer() {
+            fetch('/continue_timer', { method: 'POST' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to start timer');
+                })
+                .catch(error => console.error('Error starting timer:', error));
+        }
+        
+        function stopTimer() {
+            fetch('/stop_timer', { method: 'POST' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to stop timer');
+                })
+                .catch(error => console.error('Error stopping timer:', error));
+        }
+        
+        function nextRound() {
+            fetch('/next_round', { method: 'POST' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to move to next round');
+                    window.location.reload(); // Only reload if needed to fetch new round data
+                })
+                .catch(error => console.error('Error moving to next round:', error));
+        }
+        
+        function previousRound() {
+            fetch('/previous_round', { method: 'POST' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to move to previous round');
+                    window.location.reload(); // Only reload if needed to fetch new round data
+                })
+                .catch(error => console.error('Error moving to previous round:', error));
+        }
+        
+        function resetTimer() {
+            fetch('/reset_timer', { method: 'POST' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to reset timer');
+                })
+                .catch(error => console.error('Error resetting timer:', error));
+        }
+        </script>                   
+</body>
+</html>
