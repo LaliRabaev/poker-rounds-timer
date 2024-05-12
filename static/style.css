@@ -1,0 +1,137 @@
+body {
+    font-family: 'Josefin Sans', sans-serif;
+    color: #ffffff;
+    background-image: url('/static/poker_background.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    position: relative;
+}
+
+.main_title{
+    color: #ffffff;
+    font-size: 48px;
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+.round_number{
+    color: #ffffff;
+    font-size: 32px;
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+.container {
+    display: flex;
+    width: 90%;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 20px;
+}
+
+.left-column {
+    flex: 1;
+    text-align: center;
+    margin-right: 20px;
+}
+
+.right-column {
+    flex: 3;
+    text-align: center;
+}
+
+.poker_hands {
+    width: 25vw;
+    height: 75vh;
+    /* max-height: 60vh; */
+}
+
+.chip-container {
+    position: absolute;
+    bottom: 100px;
+    right: 70px;
+    display: flex;
+    align-items: center;
+    margin-right: 80px;
+}
+
+.chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 50px;
+}
+
+.chip span {
+    color: white;
+    font-size: 32px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.chip img {
+    width: 250px;
+    display: block;
+}
+
+.blinds {
+    margin-top: 30px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.blinds img {
+    width: 200px;
+    vertical-align: middle;
+}
+
+.blinds span {
+    margin: 0 10px;
+    color: #ffffff;
+    font-size: 28px;
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+.button-container {
+    margin-top: 60px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+button {
+    padding: 20px 30px;
+    font-size: 24px;
+    cursor: pointer;
+    background-color: #444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Josefin Sans', sans-serif;
+}
+.next-round-blinds {
+    text-align: center;
+    margin-top: 20px;
+    color: #ffffff;
+    font-size: 24px;
+    font-family: 'Josefin Sans', sans-serif;
+}
+#timer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    margin: 20px;
+}
+
+#timer {
+    font-size: 48px;
+    font-weight: bold;
+    color: #FFD700;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-align: center;
+}
