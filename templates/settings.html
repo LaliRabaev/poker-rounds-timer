@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Poker Timer Settings</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="settings-container">
+        <h1>Poker Timer Settings</h1>
+        
+        <div class="settings-section">
+            <h2>Rounds Configuration</h2>
+            <table class="rounds-table">
+                <thead>
+                    <tr>
+                        <th>Round</th>
+                        <th>Small Blind</th>
+                        <th>Big Blind</th>
+                        <th>Duration (min)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for round in rounds %}
+                    <tr>
+                        <td>{{ round.round }}</td>
+                        <td>
+                            <form id="round-form-{{ loop.index0 }}" class="inline-form" action="{{ url_for('update_blinds') }}" method="post">
+                                <input type="hidden" name="round_index" value="{{ loop.index0 }}">
+                                <input type="number" name="small_blind" value="{{ round.small_blind }}" min="1" class="blind-input">
+                            </form>
+                        </td>
+                        <td>
+                            <input type="number" name="big_blind" value="{{ round.big_blind }}" min="1" form="round-form-{{ loop.index0 }}" class="blind-input">
+                        </td>
+                        <td>
+                            <form id="time-form-{{ loop.index0 }}" class="inline-form" action="{{ url_for('update_round_time') }}" method="post">
+                                <input type="hidden" name="round_index" value="{{ loop.index0 }}">
+                                <input type="number" name="duration" value="{{ round.duration // 60 }}" min="1" max="60" class="time-input">
+                            </form>
+                        </td>
+                        <td>
+                            <button type="submit" form="round-form-{{ loop.index0 }}" class="save-btn">Save Blinds</button>
+                            <button type="submit" form="time-form-{{ loop.index0 }}" class="save-btn">Save Time</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="settings-section">
+            <h2>Player Management</h2>
+            <table class="players-table">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Name</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in players %}
+                    <tr>
+                        <td>{{ player.position }}</td>
+                        <td>
+                            <form id="player-form-{{ player.id }}" class="inline-form" action="{{ url_for('update_player') }}" method="post">
+                                <input type="hidden" name="id" value="{{ player.id }}">
+                                <input type="text" name="name" value="{{ player.name }}" class="player-name-input">
+                            </form>
+                        </td>
+                        <td>
+                            <input type="checkbox" name="active" value="true" form="player-form-{{ player.id }}" 
+                                  {% if player.active %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <button type="submit" form="player-form-{{ player.id }}" class="save-btn">Save</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <a href="{{ url_for('index') }}" class="back-btn">Back to Timer</a>
+    </div>
+</body>
+</html>

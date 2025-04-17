@@ -3,78 +3,137 @@
 <head>
     <title>Poker Round Timer</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    <script>
-        function fetchTime() {
-            fetch('/timer')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('timer').innerHTML = `${data.mins} minutes ${data.secs} seconds`;
-                });
-            setTimeout(fetchTime, 1000);  // Update every second
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <audio id="roundEndSound" src="{{ url_for('static', filename='round_end.mp3') }}"></audio>
 </head>
 <body onload="fetchTime()">
-    <div class="container">
-        <div class="left-column">
-            <img src="{{ url_for('static', filename='poker_hands.png') }}" alt="Poker Hands">
-        </div>
-        <div class="right-column">
-            <h1 class="main_title">Poker Night</h1>
-            <div class="round_number">Round: {{ round['round'] }}</div>
-            <div id="timer-container">
-                <div id="timer">15:00</div>
-            </div>            
-            <div class="blinds">
-                <img src="{{ url_for('static', filename='small_blind.png') }}" alt="Small Blind">
-                <span>Small Blind: {{ round['small_blind'] }}</span>
-                <img src="{{ url_for('static', filename='big_blind.png') }}" alt="Big Blind">
-                <span>Big Blind: {{ round['big_blind'] }}</span>
+    <div class="main-container">
+        <h1 class="main_title">Poker Night</h1>
+        
+        <div class="container">
+            <div class="left-column">
+                <div class="chip-container vertical">
+                    <div class="chip">
+                        <img src="{{ url_for('static', filename='chip_100.png') }}" alt="100 Chip">
+                        <span>100</span>
+                    </div>
+                    <div class="chip">
+                        <img src="{{ url_for('static', filename='chip_500.png') }}" alt="500 Chip">
+                        <span>500</span>
+                    </div>
+                    <div class="chip">
+                        <img src="{{ url_for('static', filename='chip_1000.png') }}" alt="1000 Chip">
+                        <span>1000</span>
+                    </div>
+                    <div class="chip">
+                        <img src="{{ url_for('static', filename='chip_2500.png') }}" alt="2500 Chip">
+                        <span>2500</span>
+                    </div>
+                    <div class="chip">
+                        <img src="{{ url_for('static', filename='chip_5000.png') }}" alt="5000 Chip">
+                        <span>5000</span>
+                    </div>
+                </div>
+                <div class="round-info">
+                    <div class="round_number">Round: {{ round['round'] }}</div>
+                    <div id="timer-container">
+                        <div id="timer">15:00</div>
+                        <div class="progress-bar">
+                            <div id="timer-progress" class="progress"></div>
+                        </div>
+                    </div>
+                    <div class="blinds">
+                        <div class="blind-item">
+                            <img src="{{ url_for('static', filename='small_blind.png') }}" alt="Small Blind">
+                            <span>Small Blind: {{ round['small_blind'] }}</span>
+                        </div>
+                        <div class="blind-item">
+                            <img src="{{ url_for('static', filename='big_blind.png') }}" alt="Big Blind">
+                            <span>Big Blind: {{ round['big_blind'] }}</span>
+                        </div>
+                    </div>
+                    <div class="next-round-blinds">
+                        <span>Next Small Blind: {{ next_round['small_blind'] }}</span>
+                        <span>Next Big Blind: {{ next_round['big_blind'] }}</span>
+                    </div>
+                </div>
+                
+                <div class="poker-table-container">
+                    <div class="poker-table">
+                        <div class="hand-counter-display">
+                            Hand #<span id="hand-count">{{ hand_counter }}</span>
+                            <button onclick="resetHandCounter()" class="small-btn">Reset Hands</button>
+                        </div>
+                        {% for player in players %}
+                        <div class="player player-{{ player.position }}" data-position="{{ player.position }}">
+                            <div class="player-name">{{ player.name }}</div>
+                            {% if player.position == dealer_position %}
+                            <div class="dealer-button">D</div>
+                            {% endif %}
+                            {% if player.position == small_blind_position %}
+                            <div class="small-blind-marker">SB</div>
+                            {% endif %}
+                            {% if player.position == big_blind_position %}
+                            <div class="big-blind-marker">BB</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-            <div class="next-round-blinds">
-                <span>Next Small Blind: {{ next_round['small_blind'] }}</span>
-                <span>Next Big Blind: {{ next_round['big_blind'] }}</span>
+            
+            <div class="right-column">
+                <img src="{{ url_for('static', filename='poker_hands.png') }}" alt="Poker Hands" class="poker-hands">
+                
+                <div class="controls-panel">
+                    <div class="button-container">
+                        <button onclick="startTimer()" class="control-btn">Start Timer</button>
+                        <button onclick="stopTimer()" class="control-btn">Stop Timer</button>
+                        <button onclick="resetTimer()" class="control-btn">Reset Timer</button>
+                        <button onclick="nextHand()" class="control-btn">Next Hand</button>
+                        <button onclick="previousRound()" class="control-btn">Prev Round</button>
+                        <button onclick="nextRound()" class="control-btn">Next Round</button>
+                    </div>
+                    <a href="{{ url_for('settings') }}" class="settings-link">Settings</a>
+                </div>
             </div>
-            <div class="button-container">
-                <button onclick="startTimer()">Start Timer</button>
-                <button onclick="stopTimer()">Stop Timer</button>
-                <button onclick="previousRound()">Previous Round</button>
-                <button onclick="nextRound()">Next Round</button>
-                <button onclick="resetTimer()">Reset Timer</button>
-            </div>            
-        </div>        
-    </div>
-    <div class="chip-container">
-        <div class="chip">
-            <span>100</span>
-            <img src="{{ url_for('static', filename='chip_100.png') }}" alt="100 Chip">
-        </div>
-        <div class="chip">
-            <span>500</span>
-            <img src="{{ url_for('static', filename='chip_500.png') }}" alt="500 Chip">
-        </div>
-        <div class="chip">
-            <span>1000</span>
-            <img src="{{ url_for('static', filename='chip_1000.png') }}" alt="1000 Chip">
-        </div>
-        <div class="chip">
-            <span>2500</span>
-            <img src="{{ url_for('static', filename='chip_2500.png') }}" alt="2500 Chip">
-        </div>
-        <div class="chip">
-            <span>5000</span>
-            <img src="{{ url_for('static', filename='chip_5000.png') }}" alt="5000 Chip">
         </div>
     </div>
+    
     <script>
+        let roundTotalTime = {{ round['duration'] }};
+        let timerInitialValue = {{ round['duration'] }};
+        
+        document.addEventListener('keydown', function(event) {
+            // Press space to advance to next hand
+            if (event.code === 'Space') {
+                nextHand();
+            }
+        });
+        
         function fetchTime() {
             fetch('/timer')
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('timer').innerHTML = `${data.mins} minutes ${data.secs} seconds`;
+                    
+                    // Update progress bar
+                    const remaining = data.mins * 60 + data.secs;
+                    const percentComplete = 100 - ((remaining / roundTotalTime) * 100);
+                    document.getElementById('timer-progress').style.width = `${percentComplete}%`;
+                    
+                    // If timer is complete, play sound
+                    if (data.complete) {
+                        playRoundEndSound();
+                    }
                 })
                 .catch(error => console.error('Error fetching time:', error));
             setTimeout(fetchTime, 1000); // Update every second
+        }
+        
+        function playRoundEndSound() {
+            const sound = document.getElementById('roundEndSound');
+            sound.play();
         }
         
         function startTimer() {
@@ -87,9 +146,7 @@
         
         function stopTimer() {
             fetch('/stop_timer', { method: 'POST' })
-                .then(response => {
-                    if (!response.ok) throw new Error('Failed to stop timer');
-                })
+                .then(response => response.json())
                 .catch(error => console.error('Error stopping timer:', error));
         }
         
@@ -97,7 +154,7 @@
             fetch('/next_round', { method: 'POST' })
                 .then(response => {
                     if (!response.ok) throw new Error('Failed to move to next round');
-                    window.location.reload(); // Only reload if needed to fetch new round data
+                    window.location.reload(); // Reload to fetch new round data
                 })
                 .catch(error => console.error('Error moving to next round:', error));
         }
@@ -106,18 +163,71 @@
             fetch('/previous_round', { method: 'POST' })
                 .then(response => {
                     if (!response.ok) throw new Error('Failed to move to previous round');
-                    window.location.reload(); // Only reload if needed to fetch new round data
+                    window.location.reload(); // Reload to fetch new round data
                 })
                 .catch(error => console.error('Error moving to previous round:', error));
         }
         
         function resetTimer() {
             fetch('/reset_timer', { method: 'POST' })
-                .then(response => {
-                    if (!response.ok) throw new Error('Failed to reset timer');
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('timer').innerHTML = `${data.mins} minutes ${data.secs} seconds`;
+                    document.getElementById('timer-progress').style.width = '0%';
                 })
                 .catch(error => console.error('Error resetting timer:', error));
         }
-        </script>                   
+        
+        function nextHand() {
+            fetch('/next_hand', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('hand-count').textContent = data.hand_counter;
+                    
+                    // Remove all dealer and blind markers
+                    document.querySelectorAll('.dealer-button, .small-blind-marker, .big-blind-marker')
+                        .forEach(el => el.remove());
+                    
+                    // Add new dealer button
+                    const dealerPlayer = document.querySelector(`.player-${data.dealer_position}`);
+                    if (dealerPlayer) {
+                        const dealerBtn = document.createElement('div');
+                        dealerBtn.className = 'dealer-button';
+                        dealerBtn.textContent = 'D';
+                        dealerPlayer.appendChild(dealerBtn);
+                    }
+                    
+                    // Add small blind marker
+                    const sbPlayer = document.querySelector(`.player-${data.sb_position}`);
+                    if (sbPlayer) {
+                        const sbMarker = document.createElement('div');
+                        sbMarker.className = 'small-blind-marker';
+                        sbMarker.textContent = 'SB';
+                        sbPlayer.appendChild(sbMarker);
+                    }
+                    
+                    // Add big blind marker
+                    const bbPlayer = document.querySelector(`.player-${data.bb_position}`);
+                    if (bbPlayer) {
+                        const bbMarker = document.createElement('div');
+                        bbMarker.className = 'big-blind-marker';
+                        bbMarker.textContent = 'BB';
+                        bbPlayer.appendChild(bbMarker);
+                    }
+                })
+                .catch(error => console.error('Error advancing hand:', error));
+        }
+
+        function resetHandCounter() {
+            fetch('/reset_hands', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('hand-count').textContent = data.hand_counter;
+                    // Don't reset or move dealer and blind markers - removing this code
+                    // that previously repositioned markers to players 1, 2, and 3
+                })
+                .catch(error => console.error('Error resetting hand counter:', error));
+        }
+    </script>                   
 </body>
 </html>
